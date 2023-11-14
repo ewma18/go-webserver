@@ -2,15 +2,16 @@ package renders
 
 import (
 	"fmt"
+	"go-sample-webserver/pkg/config"
 	"html/template"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
-var templateCache = make(map[string]*template.Template)
-
 func RenderHtmlTemplate(res http.ResponseWriter, fileName string) {
-	parsedTemplate, err := getOrSetCachedTemplate(fileName)
+
+	parsedTemplate, err := getTemplate(fileName)
 	if err != nil {
 		handleError(res, err)
 		return
@@ -23,32 +24,97 @@ func RenderHtmlTemplate(res http.ResponseWriter, fileName string) {
 	}
 }
 
-func getOrSetCachedTemplate(fileName string) (*template.Template, error) {
-	parsedTemplate := templateCache[fileName]
-	var err error
+func getTemplate(fileName string) (*template.Template, error) {
+	config := config.GetAppConfig()
+	if config.UseCache {
+		return getCachedTemplate(fileName)
+	}
+
+	layouts, err := getLayoutFiles()
+	if err != nil {
+		return nil, err
+	}
+	template, err := loadTemplateFromFile("./templates/pages/"+fileName, layouts)
+	return template, err
+
+}
+
+func getCachedTemplate(fileName string) (*template.Template, error) {
+	config := config.GetAppConfig()
+	parsedTemplate := config.TemplateCache[fileName]
 
 	if parsedTemplate == nil {
-		log.Println("Template cache miss for ", fileName)
-		log.Println("Creating and parsing template then adding to cache")
-		parsedTemplate, err = template.ParseFiles(
-			"./templates/"+fileName,
-			"./templates/base.layout.tmpl",
-		)
+		return nil, fmt.Errorf("unable to find parsed template in cache for file %s", fileName)
+	}
 
+	return parsedTemplate, nil
+}
+
+func PreLoadTemplates() (map[string]*template.Template, error) {
+
+	log.Println("Building Templates cache...")
+
+	var templateCache = map[string]*template.Template{}
+
+	pages, err := filepath.Glob("./templates/pages/*.tmpl")
+	if err != nil {
+		return nil, err
+	}
+
+	if len(pages) == 0 {
+		return nil, fmt.Errorf("no templates found on folder ./templates/pages")
+	}
+
+	layouts, err := getLayoutFiles()
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Found %d pages, %d layouts", len(pages), len(layouts))
+
+	for _, page := range pages {
+		fileName := filepath.Base(page)
+
+		template, err := loadTemplateFromFile(page, layouts)
 		if err != nil {
-			log.Println("Error parsing template ", fileName, err)
 			return nil, err
 		}
-
-		templateCache[fileName] = parsedTemplate
-	} else {
-		log.Println("Template cache hit for ", fileName)
+		templateCache[fileName] = template
 	}
-	return parsedTemplate, nil
+
+	log.Println("Building Templates Cache Done!")
+	return templateCache, nil
+}
+
+func getLayoutFiles() ([]string, error) {
+	layouts, err := filepath.Glob("./templates/layouts/*.tmpl")
+	return layouts, err
+}
+
+func loadTemplateFromFile(file string, layouts []string) (*template.Template, error) {
+	fileName := filepath.Base(file)
+
+	log.Printf("Building template for %s ...", fileName)
+	template, err := template.New(fileName).ParseFiles(file)
+
+	if err != nil {
+		return nil, err
+	}
+
+	log.Printf("Building template for %s. Adding layouts...", fileName)
+	if len(layouts) > 0 {
+		template, err = template.ParseFiles(layouts...)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	log.Printf("Building template for %s Done", fileName)
+	return template, nil
 }
 
 func handleError(res http.ResponseWriter, err error) {
 	res.WriteHeader(500)
-	fmt.Fprintf(res, "Error parsing template %v", err)
-	log.Println("Error parsing template ", err)
+	fmt.Fprintf(res, "Error processing template %v", err)
+	log.Println("Error processing template ", err)
 }
