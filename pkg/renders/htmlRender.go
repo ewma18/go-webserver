@@ -50,7 +50,17 @@ func getCachedTemplate(fileName string) (*template.Template, error) {
 	return parsedTemplate, nil
 }
 
-func PreLoadTemplates() (map[string]*template.Template, error) {
+func SetupPageTemplates(config *config.AppConfig) {
+	if config.UseCache {
+		templateCache, err := preLoadTemplates()
+		if err != nil {
+			log.Fatal("cannot create template cache", err)
+		}
+		config.TemplateCache = templateCache
+	}
+}
+
+func preLoadTemplates() (map[string]*template.Template, error) {
 
 	log.Println("Building Templates cache...")
 

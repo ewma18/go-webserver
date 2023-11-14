@@ -3,35 +3,28 @@ package main
 import (
 	"fmt"
 	"go-sample-webserver/pkg/config"
-	"go-sample-webserver/pkg/handlers"
 	"go-sample-webserver/pkg/renders"
-	"log"
 	"net/http"
 )
 
 const portNumber = ":8080"
 
 func main() {
-	setup()
+	config := config.GetAppConfig()
+	//config.UseCache = true
 
-	http.HandleFunc("/", handlers.HomeHandler)
-	http.HandleFunc("/about", handlers.AboutHandler)
+	renders.SetupPageTemplates(config)
+	router := setupRouter(config)
+
+	server := &http.Server{
+		Addr:    portNumber,
+		Handler: router,
+	}
 
 	fmt.Printf("Starting application on port %s \n", portNumber)
 	fmt.Println("Listening...")
 
-	http.ListenAndServe(portNumber, nil)
-}
+	server.ListenAndServe()
 
-func setup() {
-	config := config.GetAppConfig()
-	config.UseCache = true
-
-	if config.UseCache {
-		templateCache, err := renders.PreLoadTemplates()
-		if err != nil {
-			log.Fatal("cannot create template cache", err)
-		}
-		config.TemplateCache = templateCache
-	}
+	//http.ListenAndServe(portNumber, nil)
 }

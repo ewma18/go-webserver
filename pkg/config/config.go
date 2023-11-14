@@ -8,7 +8,9 @@ type AppConfig struct {
 	UseCache      bool
 }
 
-var app *AppConfig = new(AppConfig)
+var app *AppConfig = &AppConfig{
+	UseCache: true,
+}
 
 func GetAppConfig() *AppConfig {
 	return app
