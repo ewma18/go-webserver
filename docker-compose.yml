@@ -1,0 +1,47 @@
+version: "3.9"
+services:
+  go-sample-webserver:
+    restart: always
+    image: go-sample-webserver:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    ports:
+      - 8080:8080
+    environment:
+      - API_USERID=1
+      - API_USERNAME=fiber
+      - API_PASSWORD=fiber
+      - JWT_SECRET=fiber
+    networks:
+      -  go-sample-server
+    depends_on:
+      - mysql
+    command: ./go-sample-webserver.exe
+  mysql:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    volumes:
+      - ./db-scripts/initdb:/docker-entrypoint-initdb.d
+    expose:
+      - 3306
+    ports:
+      - ${ECOSYSTEM_MYSQL_PORT:-3310}:3306
+    environment:
+      MYSQL_DATABASE: go-sample
+      MYSQL_ROOT_PASSWORD: go-sample
+    networks:
+      - go-sample-server
+  redis:
+    image: redis
+    restart: always
+    expose:
+      - 6379
+    ports:
+      - 6381:6379
+    networks:
+      - go-sample-server
+networks:
+  go-sample-server:

@@ -34,7 +34,7 @@ func getTemplate(fileName string) (*template.Template, error) {
 	if err != nil {
 		return nil, err
 	}
-	template, err := loadTemplateFromFile("./templates/pages/"+fileName, layouts)
+	template, err := loadTemplateFromFile("./resources/templates/pages/"+fileName, layouts)
 	return template, err
 
 }
@@ -66,13 +66,13 @@ func preLoadTemplates() (map[string]*template.Template, error) {
 
 	var templateCache = map[string]*template.Template{}
 
-	pages, err := filepath.Glob("./templates/pages/*.tmpl")
+	pages, err := filepath.Glob("./resources/templates/pages/*.tmpl")
 	if err != nil {
 		return nil, err
 	}
 
 	if len(pages) == 0 {
-		return nil, fmt.Errorf("no templates found on folder ./templates/pages")
+		return nil, fmt.Errorf("no templates found on folder ./resources/templates/pages")
 	}
 
 	layouts, err := getLayoutFiles()
@@ -97,7 +97,7 @@ func preLoadTemplates() (map[string]*template.Template, error) {
 }
 
 func getLayoutFiles() ([]string, error) {
-	layouts, err := filepath.Glob("./templates/layouts/*.tmpl")
+	layouts, err := filepath.Glob("./resources/templates/layouts/*.tmpl")
 	return layouts, err
 }
 
