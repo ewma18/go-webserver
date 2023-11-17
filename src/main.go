@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"go-sample-webserver/pkg/config"
-	"go-sample-webserver/pkg/renders"
+	"go-sample-webserver/src/config"
+	"go-sample-webserver/src/renders"
+	"go-sample-webserver/src/routes"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -46,7 +47,7 @@ func main() {
 	app.Use(recover.New())
 
 	renders.SetupPageTemplates(config)
-	setupRouter(app.Group("/"))
+	routes.SetupRouter(app.Group("/"))
 
 	fmt.Printf("Starting application on port %s \n", portNumber)
 	fmt.Println("Listening...")

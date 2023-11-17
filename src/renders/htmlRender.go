@@ -2,7 +2,7 @@ package renders
 
 import (
 	"fmt"
-	"go-sample-webserver/pkg/config"
+	"go-sample-webserver/src/config"
 	"html/template"
 	"io"
 	"path/filepath"
