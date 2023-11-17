@@ -5,8 +5,9 @@ import (
 	"go-sample-webserver/pkg/config"
 	"html/template"
 	"io"
-	"log"
 	"path/filepath"
+
+	"github.com/gofiber/fiber/v2/log"
 )
 
 func RenderHtmlTemplate(writer io.Writer, fileName string) error {
@@ -57,7 +58,7 @@ func SetupPageTemplates(config *config.AppConfig) {
 
 func preLoadTemplates() (map[string]*template.Template, error) {
 
-	log.Println("Building Templates cache...")
+	log.Info("Building Templates cache...")
 
 	var templateCache = map[string]*template.Template{}
 
@@ -75,7 +76,7 @@ func preLoadTemplates() (map[string]*template.Template, error) {
 		return nil, err
 	}
 
-	log.Printf("Found %d pages, %d layouts", len(pages), len(layouts))
+	log.Infof("Found %d pages, %d layouts", len(pages), len(layouts))
 
 	for _, page := range pages {
 		fileName := filepath.Base(page)
@@ -87,7 +88,7 @@ func preLoadTemplates() (map[string]*template.Template, error) {
 		templateCache[fileName] = template
 	}
 
-	log.Println("Building Templates Cache Done!")
+	log.Info("Building Templates Cache Done!")
 	return templateCache, nil
 }
 
@@ -99,14 +100,14 @@ func getLayoutFiles() ([]string, error) {
 func loadTemplateFromFile(file string, layouts []string) (*template.Template, error) {
 	fileName := filepath.Base(file)
 
-	log.Printf("Building template for %s ...", fileName)
+	log.Infof("Building template for %s ...", fileName)
 	template, err := template.New(fileName).ParseFiles(file)
 
 	if err != nil {
 		return nil, err
 	}
 
-	log.Printf("Building template for %s. Adding layouts...", fileName)
+	log.Infof("Building template for %s. Adding layouts...", fileName)
 	if len(layouts) > 0 {
 		template, err = template.ParseFiles(layouts...)
 		if err != nil {
@@ -114,6 +115,6 @@ func loadTemplateFromFile(file string, layouts []string) (*template.Template, er
 		}
 	}
 
-	log.Printf("Building template for %s Done", fileName)
+	log.Infof("Building template for %s Done", fileName)
 	return template, nil
 }

@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"go-sample-webserver/pkg/renders"
-	"log"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -26,7 +25,7 @@ func AboutHandler(ctx *fiber.Ctx) error {
 
 	err := renders.RenderHtmlTemplate(
 		ctx.Response().BodyWriter(),
-		"about.page.tmp2l",
+		"about.page.tmpl",
 	)
 
 	if err != nil {
@@ -37,7 +36,9 @@ func AboutHandler(ctx *fiber.Ctx) error {
 
 func handleError(ctx *fiber.Ctx, err error) *fiber.Error {
 
-	log.Print("Error processing request ", err)
+	logger := ctx.Context().Logger()
+	logger.Printf("Error processing request2 %v", err)
+
 	return fiber.NewError(
 		fiber.StatusInternalServerError,
 		fmt.Sprintf("Error processing request \n %v", err),
