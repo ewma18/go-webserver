@@ -4,24 +4,19 @@ import (
 	"fmt"
 	"go-sample-webserver/pkg/config"
 	"html/template"
+	"io"
 	"log"
-	"net/http"
 	"path/filepath"
 )
 
-func RenderHtmlTemplate(res http.ResponseWriter, fileName string) {
+func RenderHtmlTemplate(writer io.Writer, fileName string) error {
 
 	parsedTemplate, err := getTemplate(fileName)
 	if err != nil {
-		handleError(res, err)
-		return
+		return err
 	}
 
-	err = parsedTemplate.Execute(res, nil)
-	if err != nil {
-		handleError(res, err)
-		return
-	}
+	return parsedTemplate.Execute(writer, nil)
 }
 
 func getTemplate(fileName string) (*template.Template, error) {
@@ -121,10 +116,4 @@ func loadTemplateFromFile(file string, layouts []string) (*template.Template, er
 
 	log.Printf("Building template for %s Done", fileName)
 	return template, nil
-}
-
-func handleError(res http.ResponseWriter, err error) {
-	res.WriteHeader(500)
-	fmt.Fprintf(res, "Error processing template %v", err)
-	log.Println("Error processing template ", err)
 }

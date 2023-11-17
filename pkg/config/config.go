@@ -9,7 +9,7 @@ type AppConfig struct {
 }
 
 var app *AppConfig = &AppConfig{
-	UseCache: true,
+	UseCache: false,
 }
 
 func GetAppConfig() *AppConfig {
