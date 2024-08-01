@@ -76,7 +76,12 @@ func SearchAvailabilityHandler(ctx *fiber.Ctx) error {
 	return nil
 }
 
-func MakeReservationsHandler(ctx *fiber.Ctx) error {
+func PostSearchAvailabilityHandler(ctx *fiber.Ctx) error {
+	ctx.SendString("Recebemos a sua requisição")
+	return nil
+}
+
+func MakeReservationHandler(ctx *fiber.Ctx) error {
 	ctx.Set("Content-Type", "text/html; charset=utf-8")
 
 	err := renders.RenderHtmlTemplate(

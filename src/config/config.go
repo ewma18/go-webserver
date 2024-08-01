@@ -7,11 +7,11 @@ import (
 // AppConfig holds all application configs
 type AppConfig struct {
 	TemplateCache map[string]*template.Template
-	UseCache      bool
+	InProduction  bool
 }
 
 var app *AppConfig = &AppConfig{
-	UseCache: false,
+	InProduction: true,
 }
 
 func GetAppConfig() *AppConfig {

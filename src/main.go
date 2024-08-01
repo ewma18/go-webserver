@@ -21,17 +21,17 @@ const portNumber = ":8080"
 
 func main() {
 	config := config.GetAppConfig()
-	//config.UseCache = true
+	config.InProduction = false
 
-	app := fiber.New(fiber.Config{
+	server := fiber.New(fiber.Config{
 		AppName:      "Go Sample Webserver (Go Fiber)",
 		ServerHeader: "Fiber",
 		Immutable:    true,
 	})
 
 	// Use global middlewares.
-	app.Use(requestid.New())
-	app.Use(logger.New(logger.Config{
+	server.Use(requestid.New())
+	server.Use(logger.New(logger.Config{
 		// For more options, see the Config section
 		Format:       "[${time}] ${ip} ${locals:requestid} - ${method} ${path} -${latency} ${status} ${red}${error}​${reset}\n",
 		TimeFormat:   "2006-01-01 15:04:05.000",
@@ -40,19 +40,21 @@ func main() {
 
 	//app.Use(logger.New())
 
-	app.Use(cors.New())
-	app.Use(compress.New())
-	app.Use(etag.New())
-	app.Use(favicon.New())
-	app.Use(recover.New())
+	server.Use(cors.New())
+	server.Use(compress.New())
+	server.Use(etag.New())
+
+	server.Use(favicon.New())
+	server.Use(recover.New())
+	//app.Use(middlewares.NoSurf)
 
 	renders.SetupPageTemplates(config)
-	routes.SetupRouter(app.Group("/"))
+	routes.SetupRouter(server.Group("/"))
 
 	fmt.Printf("Starting application on port %s \n", portNumber)
 	fmt.Println("Listening...")
 
-	app.Listen(portNumber)
+	server.Listen(portNumber)
 
 	//http.ListenAndServe(portNumber, nil)
 }

@@ -22,7 +22,7 @@ func RenderHtmlTemplate(writer io.Writer, fileName string) error {
 
 func getTemplate(fileName string) (*template.Template, error) {
 	config := config.GetAppConfig()
-	if config.UseCache {
+	if config.InProduction {
 		return getCachedTemplate(fileName)
 	}
 
@@ -47,7 +47,7 @@ func getCachedTemplate(fileName string) (*template.Template, error) {
 }
 
 func SetupPageTemplates(config *config.AppConfig) {
-	if config.UseCache {
+	if config.InProduction {
 		templateCache, err := preLoadTemplates()
 		if err != nil {
 			log.Fatal("cannot create template cache", err)

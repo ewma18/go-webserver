@@ -10,3 +10,6 @@ stop:
 .PHONY: test
 test:
 	sh ./scripts/e2e-testing.sh
+
+run:
+	go run src/main.go
